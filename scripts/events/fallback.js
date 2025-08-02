@@ -24,7 +24,7 @@ function similarity(str1, str2) {
 module.exports = {
 	config: {
 		name: "fallback",
-		version: "2.0",
+		version: "2.1",
 		author: "Chitron Bhattacharjee",
 		category: "system",
 		role: 0
@@ -49,9 +49,8 @@ module.exports = {
 		}
 
 		const exactMatch = cmdNames.find(c => c.name === inputCmd);
-		if (exactMatch) return; // Command exists
+		if (exactMatch) return;
 
-		// Filter suggestions with 90%+ match
 		const suggestions = cmdNames
 			.map(({ name, cmd }) => {
 				return {
@@ -74,7 +73,7 @@ module.exports = {
 			suggestText += `${emojiNums[i]} ${toSerifFont(s.name)}\n`;
 		});
 
-		suggestText += `\n💬 ${toSerifFont("Reply with")} ${emojiNums.slice(0, suggestions.length).join(" ")} ${toSerifFont("to run one.")}`;
+		suggestText += `\n💬 ${toSerifFont("Reply with")} 1, 2, or 3 ${toSerifFont("to run one.")}`;
 
 		const suggestMsg = await api.sendMessage(suggestText, event.threadID, event.messageID);
 
@@ -94,8 +93,9 @@ module.exports = {
 
 		if (type !== "fallback-suggest" || event.senderID !== userID) return;
 
-		const emojiNums = ["➊", "➋", "➌"];
-		const index = emojiNums.findIndex(e => event.body.trim() === e);
+		// Accept normal digits "1","2","3" as reply
+		const validReplies = ["1", "2", "3"];
+		const index = validReplies.indexOf(event.body.trim());
 		if (index === -1 || !suggestions[index]) return;
 
 		const cmd = suggestions[index].cmd;
@@ -131,12 +131,15 @@ module.exports = {
 			return;
 		}
 
-		// Clean up
 		try {
 			await api.unsendMessage(messageID);
 			await api.unsendMessage(event.messageID);
 		} catch {}
 
 		await api.sendMessage(`✅ ${toSerifFont("Command")} "${toSerifFont(cmdName)}" ${toSerifFont("executed!")}`, threadID);
+	},
+
+	onStart: async function () {
+		// Dummy to avoid load error. Real logic runs in onChat/onReply
 	}
 };
