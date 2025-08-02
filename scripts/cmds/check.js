@@ -1,62 +1,22 @@
 module.exports = {
-	config: {
-		name: "check",
-		aliases: ["chk"],
-		version: "1.3",
-		countDown: 5,
-		role: 0,
-		shortDescription: {
-			en: "Bot health check"
-		},
-		description: {
-			en: "Tests whether the bot can send messages here."
-		},
-		category: "system",
-		guide: {
-			en: "Use +check / +chk or simply type check / chk"
-		}
-	},
+  config: {
+    name: "checkreact",
+    version: "1.0",
+    author: "Chitron Bhattacharjee", // ⛩️🍥💕
+    countDown: 5,
+    role: 0,
+    shortDescription: { en: "React with 🤡 on 'check'" },
+    longDescription: { en: "Reacts with clown emoji when someone types 'check'" },
+    category: "fun",
+    guide: { en: "No prefix needed. Just say 'check'" }
+  },
 
-	// Prefix trigger
-	onStart: async function ({ api, message, event }) {
-		await runHealthCheck({ api, message, event });
-	},
+  onStart: async function () {}, // dummy to satisfy install requirement
 
-	// No-prefix trigger
-	onChat: async function ({ event, api, message }) {
-		const body = (event.body || "").trim().toLowerCase();
-		if (body === "check" || body === "chk") {
-			await runHealthCheck({ api, message, event });
-		}
-	}
+  onChat: async function ({ api, event }) {
+    const content = event.body?.toLowerCase();
+    if (content?.includes("check")) {
+      return api.reaction("🤡", event.messageID);
+    }
+  }
 };
-
-// Main health check routine
-async function runHealthCheck({ api, message, event }) {
-	const RUN  = "✅";   // test running
-	const OK   = "✅";   // success
-	const FAIL = "⚠️";   // failed
-
-	// Indicate that bot is processing
-	try {
-		await api.setMessageReaction(RUN, event.messageID, () => {}, true);
-	} catch {}
-
-	let canSend = true;
-
-	// Try replying
-	try {
-		const banner =
-			"╔═ BOT OK ═╗\n" +
-			"╚═══════════╝";
-		await message.reply(banner);
-	} catch (e) {
-		canSend = false;
-	}
-
-	// Update reaction based on result
-	try {
-		await api.setMessageReaction("", event.messageID, () => {}, true);  
-		await api.setMessageReaction(canSend ? OK : FAIL, event.messageID, () => {}, true);
-	} catch {}
-}
