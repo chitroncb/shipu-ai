@@ -1,0 +1,65 @@
+const axios = require("axios");
+
+async function vcfHandler(api, event, args, message) {
+  try {
+    const prompt = args.join(" ").trim();
+
+    if (!prompt) {
+      return message.reply("⚠️ 𝓟𝓵𝓮𝓪𝓼𝓮 𝓹𝓻𝓸𝓿𝓲𝓭𝓮 𝓪 𝓹𝓻𝓸𝓶𝓹𝓽.");
+    }
+
+    const response = await getVcfResponse(prompt);
+
+    if (response && response.answer) {
+      message.reply(response.answer, (r, s) => {
+        global.GoatBot.onReply.set(s.messageID, {
+          commandName: module.exports.config.name,
+          uid: event.senderID
+        });
+      });
+    } else {
+      message.reply("❌ 𝓝𝓸 𝓻𝓮𝓼𝓹𝓸𝓷𝓼𝓮 𝓯𝓻𝓸𝓶 𝓥𝓬𝓯.");
+    }
+  } catch (error) {
+    console.error("❌ Error:", error);
+    message.reply("⚠️ 𝓐𝓷 𝓮𝓻𝓻𝓸𝓻 𝓸𝓬𝓬𝓾𝓻𝓻𝓮𝓭 𝔀𝓱𝓲𝓵𝓮 𝓹𝓻𝓸𝓬𝓮𝓼𝓼𝓲𝓷𝓰 𝔂𝓸𝓾𝓻 𝓻𝓮𝓺𝓾𝓮𝓼𝓽.");
+  }
+}
+
+async function getVcfResponse(prompt) {
+  try {
+    const url = `https://liner-ai.vercel.app/kshitiz?prompt=${encodeURIComponent(prompt)}`;
+    const { data } = await axios.get(url);
+    return data;
+  } catch (error) {
+    console.error("❌ Error from Vcf API:", error.message);
+    throw error;
+  }
+}
+
+module.exports = {
+  config: {
+    name: "vcf",
+    version: "1.0",
+    author: "Chitron Bhattacharjee 🐣🌸✨",
+    role: 0,
+    shortDescription: {
+      en: "Vcf AI assistant"
+    },
+    longDescription: {
+      en: "Chat with Vcf AI assistant, supports replies."
+    },
+    category: "ai",
+    guide: {
+      en: "{pn}vcf [your prompt]"
+    }
+  },
+
+  onStart: async function ({ api, event, args, message }) {
+    return vcfHandler(api, event, args, message);
+  },
+
+  onReply: async function ({ api, event, args, message }) {
+    return vcfHandler(api, event, args, message);
+  }
+};
