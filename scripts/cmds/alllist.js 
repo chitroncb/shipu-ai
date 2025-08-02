@@ -1,0 +1,47 @@
+module.exports = {
+  config: {
+    name: "allist",
+    aliases: [],
+    author: "Chitron Bhattacharjee 🐐✨",
+    version: "2.0",
+    cooldowns: 5,
+    role: 2,
+    shortDescription: {
+      en: "List all group chats the bot is in."
+    },
+    longDescription: {
+      en: "Use this command to list all group chats the bot is currently a member of."
+    },
+    category: "owner",
+    guide: {
+      en: "{p}{n}"
+    }
+  },
+
+  onStart: async function ({ api, event }) {
+    try {
+      const groupList = await api.getThreadList(100, null, ['INBOX']);
+      const filteredList = groupList.filter(group => group.threadName);
+
+      if (filteredList.length === 0) {
+        return api.sendMessage("❌ 𝓝𝓸 𝓰𝓻𝓸𝓾𝓹 𝓬𝓱𝓪𝓽𝓼 𝒇𝓸𝓾𝓷𝓭 𝓲𝓷 𝓽𝓱𝓮 𝓫𝓸𝓽'𝓼 𝓲𝓷𝓿𝓸𝓵𝓿𝓮𝓭 𝓵𝓲𝓼𝓽.", event.threadID);
+      }
+
+      const formattedList = filteredList.map((group, index) =>
+        `│ ${index + 1}. ${group.threadName}\n│ 𝐓𝐇𝐑𝐄𝐀𝐃 𝐈𝐃: ${group.threadID}`
+      );
+
+      const message = [
+        "╭───╮",
+        "│ 📋 𝓛𝓲𝓼𝓽 𝓸𝓯 𝓐𝓵𝓵 𝓖𝓻𝓸𝓾𝓹 𝓒𝓱𝓪𝓽𝓼:",
+        ...formattedList,
+        "╰───────────────ꔪ"
+      ].join("\n");
+
+      await api.sendMessage(message, event.threadID, event.messageID);
+    } catch (error) {
+      console.error("❌ Error listing group chats:", error);
+      await api.sendMessage("⚠️ 𝓕𝓪𝓲𝓵𝓮𝓭 𝓽𝓸 𝓻𝓮𝓽𝓻𝓲𝓮𝓿𝓮 𝓰𝓻𝓸𝓾𝓹 𝓬𝓱𝓪𝓽 𝓵𝓲𝓼𝓽.", event.threadID);
+    }
+  }
+};
