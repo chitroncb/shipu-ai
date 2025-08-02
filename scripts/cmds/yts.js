@@ -95,7 +95,7 @@ async function handleDownload(api, event, videoUrl) {
       });
     }
 
-    const msg = `🎬 𝗧𝗶𝘁𝗹𝗲: ${title}\n📥 𝗤𝘂𝗮𝗹𝗶𝘁𝘆: ${quality}\n🎞️ 𝗙𝗼𝗿𝗺𝗮𝘁: ${format}\n👤 𝗔𝘂𝘁𝗵𝗼𝗿: ${author || "Unknown"}`;
+    const msg = `🎬 𝗧𝗶𝘁𝗹𝗲: ${title}\n📥 𝗤𝘂𝗮𝗹𝗶𝘁𝘆: ${quality}\n🎞️ 𝗙𝗼𝗿𝗺𝗮𝘁: ${format}\n👤 𝗔𝘂𝘁𝗵𝗼𝗿: Chitron Bhattacharya`;
 
     return api.sendMessage({
       body: msg,
