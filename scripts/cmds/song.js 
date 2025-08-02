@@ -1,0 +1,52 @@
+const axios = require("axios");
+
+const getBaseApi = async () => {
+  const base = await axios.get("https://raw.githubusercontent.com/mahmudx7/exe/main/baseApiUrl.json");
+  return base.data.mahmud;
+};
+
+module.exports = {
+  config: {
+    name: "song",
+    version: "1.7",
+    author: "𝑪𝒉𝒊𝒕𝒓𝒐𝒏 𝑩𝒉𝒂𝒕𝒕𝒂𝒄𝒉𝒂𝒓𝒋𝒆𝒆 🐐✨",
+    countDown: 10,
+    role: 0,
+    category: "music",
+    guide: "{p}sing [song name]"
+  },
+
+  onStart: async function ({ api, event, args, message }) {
+    if (args.length === 0) {
+      return message.reply("❌ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒑𝒓𝒐𝒗𝒊𝒅𝒆 𝒂 𝒔𝒐𝒏𝒈 𝒏𝒂𝒎𝒆!\n\n✨ 𝑬𝒙𝒂𝒎𝒑𝒍𝒆: sing mood lofi");
+    }
+
+    try {
+      const query = encodeURIComponent(args.join(" "));
+      const apiUrl = `${await getBaseApi()}/api/sing2?songName=${query}`;
+
+      const response = await axios.get(apiUrl, {
+        responseType: "stream",
+        headers: { "author": module.exports.config.author }
+      });
+
+      if (response.data?.error) {
+        return message.reply(`❌ ${response.data.error}`);
+      }
+
+      message.reply({
+        body: `🎶 𝑯𝒆𝒓𝒆'𝒔 𝒚𝒐𝒖𝒓 𝒔𝒐𝒏𝒈: ${args.join(" ")}`,
+        attachment: response.data
+      });
+
+    } catch (error) {
+      console.error("Error:", error.message);
+      if (error.response) {
+        console.error("Response error data:", error.response.data);
+        console.error("Response status:", error.response.status);
+        return message.reply(`❌ ${error.response.data.error || error.message}`);
+      }
+      message.reply("❌ 𝑺𝒐𝒓𝒓𝒚, 𝒔𝒐𝒎𝒆𝒕𝒉𝒊𝒏𝒈 𝒘𝒆𝒏𝒕 𝒘𝒓𝒐𝒏𝒈 🥺");
+    }
+  }
+};
