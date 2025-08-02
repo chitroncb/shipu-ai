@@ -6,6 +6,7 @@ module.exports.config = {
   name: "botjoinreport",
   eventType: ["log:subscribe"],
   version: "1.0",
+  category: "events",
   credits: "Chitron Bhattacharjee",
   description: "Notify support GC when bot is added to new group"
 };
