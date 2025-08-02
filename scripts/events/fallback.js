@@ -84,12 +84,13 @@ module.exports = {
 			threadID: event.threadID,
 			userID: event.senderID,
 			originalInput: inputCmd,
-			args: args.slice(1)
+			args: args.slice(1),
+			messageID: suggestMsg.messageID
 		});
 	},
 
 	onReply: async function ({ event, api, Reply, message }) {
-		const { type, suggestions, userID, threadID, args } = Reply;
+		const { type, suggestions, userID, threadID, args, messageID } = Reply;
 
 		if (type !== "fallback-suggest" || event.senderID !== userID) return;
 
@@ -98,10 +99,15 @@ module.exports = {
 		if (index === -1 || !suggestions[index]) return;
 
 		const cmd = suggestions[index].cmd;
-		if (!cmd || typeof cmd.onStart !== "function") return;
+		const cmdName = cmd?.config?.name || "unknown";
+
+		if (!cmd || typeof cmd.onStart !== "function") {
+			await api.sendMessage(`⚠️ ${toSerifFont("Sorry, the command")} "${toSerifFont(cmdName)}" ${toSerifFont("can't be executed like this.")}`, threadID);
+			return;
+		}
 
 		const newEvent = { ...event };
-		newEvent.body = "+" + cmd.config.name + " " + args.join(" ");
+		newEvent.body = "+" + cmdName + " " + args.join(" ");
 		newEvent.senderID = userID;
 		newEvent.threadID = threadID;
 
@@ -113,24 +119,24 @@ module.exports = {
 			usersData: global.usersData,
 			threadsData: global.threadsData,
 			globalData: global.globalData,
-			commandName: cmd.config.name,
+			commandName: cmdName,
 			getLang: key => cmd.langs?.en?.[key] || key
 		};
 
 		try {
 			await cmd.onStart(context);
 		} catch (e) {
-			console.error("Error running fallback:", e);
+			console.error("❌ Error running fallback:", e);
 			await api.sendMessage("⚠️ An error occurred while running the command.", threadID);
 			return;
 		}
 
 		// Clean up
 		try {
-			await api.unsendMessage(Reply.messageID);
+			await api.unsendMessage(messageID);
 			await api.unsendMessage(event.messageID);
 		} catch {}
 
-		await api.sendMessage(`✅ ${toSerifFont("Command")} "${toSerifFont(cmd.config.name)}" ${toSerifFont("executed!")}`, threadID);
+		await api.sendMessage(`✅ ${toSerifFont("Command")} "${toSerifFont(cmdName)}" ${toSerifFont("executed!")}`, threadID);
 	}
 };
