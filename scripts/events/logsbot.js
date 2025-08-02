@@ -5,7 +5,7 @@ module.exports = {
 		name: "logsbot",
 		isBot: true,
 		version: "1.4",
-		author: "NTKhang",
+		author: "Chitron Bhattacharjee",
 		envConfig: {
 			allow: true
 		},
@@ -20,10 +20,10 @@ module.exports = {
 			footer: "\n- User ID: %1\n- Nhóm: %2\n- ID nhóm: %3\n- Thời gian: %4"
 		},
 		en: {
-			title: "====== Bot logs ======",
-			added: "\n✅\nEvent: bot has been added to a new group\n- Added by: %1",
-			kicked: "\n❌\nEvent: bot has been kicked\n- Kicked by: %1",
-			footer: "\n- User ID: %1\n- Group: %2\n- Group ID: %3\n- Time: %4"
+			title: "𝙱𝚘𝚝 𝙻𝚘𝚐𝚜",
+			added: "\n✅\n𝗘𝘃𝗲𝗻𝘁: 𝗯𝗼𝘁 𝗵𝗮𝘀 𝗯𝗲𝗲𝗻 𝗮𝗱𝗱𝗲𝗱 𝘁𝗼 𝗮 𝗻𝗲𝘄 𝗴𝗿𝗼𝘂𝗽\n- 𝗔𝗱𝗱𝗲𝗱 𝗯𝘆: %1",
+			kicked: "\n❌\n𝗘𝘃𝗲𝗻𝘁: 𝗯𝗼𝘁 𝗵𝗮𝘀 𝗯𝗲𝗲𝗻 𝗸𝗶𝗰𝗸𝗲𝗱\n- 𝗞𝗶𝗰𝗸𝗲𝗱 𝗯𝘆: %1",
+			footer: "\n- 𝗨𝘀𝗲𝗿 𝗜𝗗: %1\n- 𝗚𝗿𝗼𝘂𝗽: %2\n- 𝗚𝗿𝗼𝘂𝗽 𝗜𝗗: %3\n- 𝗧𝗶𝗺𝗲: %4"
 		}
 	},
 
@@ -36,6 +36,7 @@ module.exports = {
 			const { author, threadID } = event;
 			if (author == api.getCurrentUserID())
 				return;
+
 			let threadName;
 			const { config } = global.GoatBot;
 
@@ -54,6 +55,7 @@ module.exports = {
 				threadName = threadData.threadName;
 				msg += getLang("kicked", authorName);
 			}
+
 			const time = getTime("DD/MM/YYYY HH:mm:ss");
 			msg += getLang("footer", author, threadName, threadID, time);
 
