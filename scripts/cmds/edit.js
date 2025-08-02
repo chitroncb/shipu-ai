@@ -6,7 +6,7 @@ module.exports = {
   config: {
     name: "edit",
     aliases: ["imgedit", "art", "artify"],
-    version: "1.2",
+    version: "1.3",
     author: "Chitron Bhattacharjee",
     countDown: 20,
     role: 0,
@@ -22,7 +22,6 @@ module.exports = {
     }
   },
 
-  /* ─────────────────────────────── MAIN HANDLER ─────────────────────────────── */
   onStart: async function ({ api, event, args, message, usersData }) {
     if (!event.messageReply || event.messageReply.attachments.length === 0)
       return message.reply("💢 𝙃𝙚𝙮~ 𝙮𝙤𝙪 𝙣𝙚𝙚𝙙 𝙩𝙤 𝙧𝙚𝙥𝙡𝙮 𝙩𝙤 𝙖𝙣 𝙞𝙢𝙖𝙜𝙚 ✨");
@@ -48,44 +47,48 @@ module.exports = {
 
     message.reply("🪄 𝙃𝙤𝙡𝙙 𝙤𝙣~ 𝙘𝙪𝙩𝙚 𝙚𝙙𝙞𝙩𝙞𝙣𝙜 𝙞𝙣 𝙥𝙧𝙤𝙜𝙧𝙚𝙨𝙨... 💞");
 
-    try {
-      const apiURL = `https://mahi-apis.onrender.com/api/edit?url=${encodeURIComponent(imageUrl)}&txt=${encodeURIComponent(prompt)}`;
-      const res    = await axios.get(apiURL, { responseType: "arraybuffer" });
+    const cache = path.join(__dirname, "cache");
+    if (!fs.existsSync(cache)) fs.mkdirSync(cache);
 
-      const cache  = path.join(__dirname, "cache");
-      if (!fs.existsSync(cache)) fs.mkdirSync(cache);
+    const file = path.join(cache, `${Date.now()}_anime_edit.jpg`);
 
-      const file   = path.join(cache, `${Date.now()}_anime_edit.jpg`);
+    const tryAPI = async (url) => {
+      const res = await axios.get(url, { responseType: "arraybuffer" });
       fs.writeFileSync(file, Buffer.from(res.data, "binary"));
+    };
 
-      message.reply({
-        body: `🌸 𝘌𝘥𝘪𝘵 𝘊𝘰𝘮𝘱𝘭𝘦𝘵𝘦~!\n✨ 𝘗𝘳𝘰𝘮𝘱𝘵: 『${prompt}』`,
-        attachment: fs.createReadStream(file)
-      });
+    try {
+      // Try Main API
+      const mainURL = `https://mahi-apis.onrender.com/api/edit?url=${encodeURIComponent(imageUrl)}&txt=${encodeURIComponent(prompt)}`;
+      await tryAPI(mainURL);
     } catch (err) {
-      console.error(err);
-      message.reply("🚫 𝙐𝙝‑𝙤𝙝! 𝙁𝙖𝙞𝙡𝙚𝙙 𝙩𝙤 𝙚𝙙𝙞𝙩 𝙩𝙝𝙚 𝙞𝙢𝙖𝙜𝙚... 𝙩𝙧𝙮 𝙖𝙜𝙖𝙞𝙣 𝙡𝙖𝙩𝙚𝙧 💔");
+      console.warn("⚠️ Main API failed. Trying fallback...");
+      try {
+        const fallbackURL = `https://edit-and-gen.onrender.com/gen?prompt=${encodeURIComponent(prompt)}&image=${encodeURIComponent(imageUrl)}`;
+        await tryAPI(fallbackURL);
+      } catch (e2) {
+        console.error("❌ Fallback API failed too:", e2);
+        return message.reply("🚫 𝙐𝙝‑𝙤𝙝! 𝘽𝙤𝙩𝙝 𝙀𝘿𝙄𝙏 𝘼𝙋𝙄𝙨 𝙛𝙖𝙞𝙡𝙚𝙙. 𝙏𝙧𝙮 𝙖𝙜𝙖𝙞𝙣 𝙡𝙖𝙩𝙚𝙧 💔");
+      }
     }
+
+    return message.reply({
+      body: `🌸 𝘌𝘥𝘪𝘵 𝘊𝘰𝘮𝘱𝘭𝘦𝘵𝘦~!\n✨ 𝘗𝘳𝘰𝘮𝘱𝘵: 『${prompt}』`,
+      attachment: fs.createReadStream(file)
+    });
   },
 
-  /* ───────────────────────────── NO‑PREFIX MODE ────────────────────────────── */
   onChat: async function (context) {
     const { event, args } = context;
 
-    /* Only react to replies that contain an image */
-    if (event.type !== "message_reply" ||
-        !event.messageReply.attachments[0]?.type?.includes("photo"))
+    if (event.type !== "message_reply" || !event.messageReply.attachments[0]?.type?.includes("photo"))
       return;
 
-    /* First word must be a valid command keyword */
     const cmd = (args[0] || "").toLowerCase();
     const keys = ["edit", "imgedit", "art", "artify"];
     if (!keys.includes(cmd)) return;
 
-    /* Remove the command name so the rest becomes the prompt */
     args.shift();
-
-    /* Forward to main handler with trimmed args */
     return this.onStart({ ...context, args });
   }
 };
