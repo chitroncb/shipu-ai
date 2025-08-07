@@ -3,7 +3,7 @@ const { commands, aliases } = global.GoatBot;
 module.exports = {
   config: {
     name: "cmdlist",
-    aliases: ["commands", "list"],
+    aliases: ["commands"],
     version: "1.0",
     author: "Chitron Bhattacharjee",
     role: 0,
