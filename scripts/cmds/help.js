@@ -93,7 +93,7 @@ module.exports = {
   │ Version: ${configCommand.version || "1.0"}
   │ Role: ${roleText}
   │ Time per command: ${configCommand.countDown || 1}s
-  │ Author: ${author}
+  │ Author: Chitron Bhattacharya
   ├── Usage
   │ ${usage}
   ├── Notes
