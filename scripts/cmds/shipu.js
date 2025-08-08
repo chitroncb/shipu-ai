@@ -60,7 +60,7 @@ module.exports = {
     const body = event.body?.toLowerCase();
     if (!body) return;
 
-    const prefixes = ["shipu", "lume", "lumyai", "lum", "ai", "shpu"];
+    const prefixes = ["shipuai", "lume", "lumyai", "lum", "ai", "shpu"];
     const matched = prefixes.find(p => body.startsWith(p));
     if (!matched) return;
 
