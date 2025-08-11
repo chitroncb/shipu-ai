@@ -6,7 +6,6 @@ const { spawn } = require("child_process");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve chitron.html on root
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "chitron.html"));
 });
@@ -15,7 +14,6 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-// 🔐 Hidden admin UID injection
 const configPath = path.join(__dirname, "config.dev.json");
 const config = require(configPath);
 
